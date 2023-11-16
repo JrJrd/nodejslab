@@ -1,17 +1,20 @@
 const { writeFile } = require("fs");
 const { join } = require("path");
+const fetch = require("isomorphic-fetch");
+let filePath = join(__dirname, "popular-articles.json");
 
-let filePath = join(__dirname, "chirps.json");
-
-let chirps = [
-    { author: "Simmon", content: "Let's play corners!" },
-    { author: "Wilem", content: "You're a dreadful partner." },
-    { author: "Simmon", content: "Oh, please. I can play well enough." },
-    { author: "Wilem", content: "I'll play if Kvothe here joins.." },
-    { author: "Kvothe", content: "I could play a round. Who will be our fourth?" }
-  ];
-
-  writeFile(filePath, JSON.stringify(chirps), err => {
-    if (err) console.log(err);
-    console.log("wrote chrips");
+fetch("https://reddit.com/r/programmingHumor.json")
+  .then((res) => res.json())
+  .then(({data: {children}}) => {
+    console.log(children);
+    let articles = [];
+    for (let article of children) {
+        articles.push({url: article.data.url,
+             title: article.data.title,
+              author: article.data.author})}
+              writeFile(filePath, JSON.stringify(articles), (err) => {
+                if (err) console.log(err);
+                console.log("done");
+              });
   });
+
